@@ -1,5 +1,6 @@
 import pygame
 from pygame.locals import *
+import random
 
 #define fps
 clock = pygame.time.Clock()
@@ -12,6 +13,10 @@ screen_height = 800
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption('Space Invanders')
 
+
+#define game variables
+rows = 5
+cols = 5
 
 #define colours
 red = (255, 0, 0)
@@ -76,9 +81,40 @@ class bullets(pygame.sprite.Sprite):
         if self.rect.bottom < 0:
             self.kill()
 
+
+#create aliens class
+class aliens(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load("img/alien" + str(random.randint(1, 5)) + ".png")
+        self.rect = self.image.get_rect()
+        self.rect.center = [x, y]
+        self.move_counter = 0
+        self.move_direction = 1
+
+    def update(self):
+        self.rect.x += self.move_direction
+        self.move_counter += 1
+        if abs(self.move_counter) > 75:
+            self.move_direction *= -1
+            self.move_counter *= self.move_direction 
+
+
 #create sprite groups
 spaceship_group = pygame.sprite.Group()
 bullet_group = pygame.sprite.Group()
+alien_group = pygame.sprite.Group()
+
+
+def create_aliens():
+    #generate aliens
+    for row in range(rows):
+        for item in range(cols):
+            alien = aliens(100 + item * 100, 100 + row * 70)
+            alien_group.add(alien)
+
+create_aliens()
+
 
 #create player
 spaceship = Spaceship(int(screen_width / 2), screen_height - 100, 3)
@@ -104,10 +140,12 @@ while run:
 
     #update sprite groups
     bullet_group.update()
+    alien_group.update()
     
     #draw sprite groups
     spaceship_group.draw(screen)
     bullet_group.draw(screen)
+    alien_group.draw(screen)
     
 
     pygame.display.update()
